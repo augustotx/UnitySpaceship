@@ -1,7 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerShot : MonoBehaviour
+public class EnemyShot : MonoBehaviour
 {
     public float speed = 1f;
     private GameManager gameManager;
@@ -9,14 +9,13 @@ public class PlayerShot : MonoBehaviour
     private Quaternion rot;
     private Vector2 vel;
     private Rigidbody2D rb2d;
+    public float timeScale = 1f;
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        if (coll.collider.CompareTag("Enemy"))
+        if (coll.collider.CompareTag("Player"))
         {
-            EnemyScript es = coll.collider.gameObject.GetComponent<EnemyScript>();
-            es.Die();
-            gameManager.AddPoints(10);
+            gameManager.LoseLives(1);
             Destroy(this.gameObject);
         }
         this.transform.rotation = rot;
@@ -33,7 +32,7 @@ public class PlayerShot : MonoBehaviour
     {
         rot = this.transform.rotation;
         vel = rb2d.linearVelocity;
-        vel.x = speed;
+        vel.x = -speed * timeScale;
         vel.y = 0;
         rb2d.linearVelocity = vel;
     }

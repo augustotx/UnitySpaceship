@@ -1,10 +1,17 @@
+using System;
 using UnityEngine;
+
 
 public class EnemyScript : MonoBehaviour
 {
     [Header("Game Logic")]
     public int enemyType = -1;
     public float speed = 1f;
+    public float shootCooldown = 2f;
+    private float mainTimer = 0f;
+    public GameObject missile;
+    public float shootChance = 0.000005f;
+    public float timeScale = 1f;
 
     [Header("Circle Enemy")]
     public float circleRadius = 5f;
@@ -19,6 +26,9 @@ public class EnemyScript : MonoBehaviour
 
     void Update()
     {
+        mainTimer += Time.deltaTime;
+        float randomChance = UnityEngine.Random.Range(0f,1f);
+        if (randomChance <= shootChance && mainTimer >= shootCooldown) ShootMissile();
         switch (enemyType)
         {
             case 0: // circle
@@ -35,7 +45,7 @@ public class EnemyScript : MonoBehaviour
     void MoveCircle()
     {
         // angle in radians; speed controls angular velocity
-        angle += speed * Time.deltaTime;
+        angle += speed * Time.deltaTime * timeScale;
 
         float x = circleCenter.x + Mathf.Cos(angle) * circleRadius;
         float y = circleCenter.y + Mathf.Sin(angle) * circleRadius;
@@ -47,7 +57,7 @@ public class EnemyScript : MonoBehaviour
     {
         // reuse 'angle' variable: convert angular phase to a 0..4 phase around the square
         // (angle / (2π)) * 4  => multiply by 2/π
-        angle += speed * Time.deltaTime;
+        angle += speed * Time.deltaTime * timeScale;
         float phase = Mathf.Repeat(angle * (2f / Mathf.PI), 4f); // 0..4
 
         float half = circleRadius; // reuse circleRadius as half side-length
@@ -69,6 +79,13 @@ public class EnemyScript : MonoBehaviour
         }
 
         transform.position = pos;
+    }
+
+    public void ShootMissile()
+    {
+        mainTimer = 0f;
+        var m = Instantiate(missile, this.transform.position, this.transform.rotation);
+        //var ms = m.GetComponent<EnemyShot>();
     }
 
     public void Die()
